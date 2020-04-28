@@ -9,7 +9,8 @@ echo "Latest tag: $LATEST_TAG"
 
 oldpwd=$(pwd)
 
-cd usr/lib/python3/dist-packages || exit 1
+mkdir -p "$DIST_PKGS_DIR" || exit 1
+cd "$DIST_PKGS_DIR"
 git clone --depth 1 --branch "$LATEST_TAG" 'https://github.com/exaile/exaile.git' $PACKAGE 2>/dev/null
 cd $PACKAGE
 ACTUAL_TAG=$(git describe --abbrev=0 2>/dev/null)
@@ -24,8 +25,8 @@ VERSION=$ACTUAL_TAG
 echo "Cloned tag: $ACTUAL_TAG"
 rm -rf dist exaile.egg-info .git .github setup.py MANIFEST.in .gitignore INSTALL Makefile exaile.bat README.OSX README.Windows .travis.yml
 
-cd $oldpwd
 
+cd "${PROG_DIR}"
 sed -ie "s/^Package: .*$/Package: $PACKAGE/" DEBIAN/control
 sed -ie "s/^Version: .*$/Version: $VERSION/" DEBIAN/control
 find usr -type f -exec md5sum {} \; > DEBIAN/md5sums
@@ -36,6 +37,7 @@ echo "2.0" > debian-binary
 DEB_FILENAME=${PACKAGE}_${VERSION}_${ARCH}.deb
 echo "Generating ${DEB_FILENAME}"
 ar rc ${DEB_FILENAME} debian-binary control.tar.gz data.tar.gz
-\rm -f control.tar.gz data.tar.gz debian_binary
+\rm -f control.tar.gz data.tar.gz debian-binary DEBIAN/md5sums
 
 dpkg-deb --field ${DEB_FILENAME}
+cd $oldpwd
