@@ -4,7 +4,10 @@ source ${PROG_DIR}/config.sh || exit 1
 ${PROG_DIR}/clean.sh || exit 1
 
 GIT_URL_EXAILE='https://github.com/exaile/exaile.git'
-LATEST_TAG=$(git ls-remote --tags --quiet --refs $GIT_URL_EXAILE | tail -1 | cut -d/ -f3)
+MAX_TAG="4.1.0-alpha1"
+LATEST_TAG=$(git ls-remote --tags --quiet --refs $GIT_URL_EXAILE | cut -d/ -f3| sort -V | awk -v MAX_TAG=$MAX_TAG '$1 <= MAX_TAG {print}' | tail -1)
+# LATEST_TAG=$(git ls-remote --tags --quiet --refs $GIT_URL_EXAILE | tail -1 | cut -d/ -f3)
+
 echo "Latest tag: $LATEST_TAG"
 
 oldpwd=$(pwd)
